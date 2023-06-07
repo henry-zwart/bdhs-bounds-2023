@@ -24,6 +24,8 @@ docker-pull:
 enter:
 	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest bash
 
+enter-prolog:
+	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest bash -c "cd prolog; swipl"
 
 .PHONY: test
 ## Run all tests
