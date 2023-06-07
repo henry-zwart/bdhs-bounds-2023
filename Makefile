@@ -1,4 +1,5 @@
-DOCKER_IMAGE := bdhs-dev
+GIT_TAG ?= $(shell git log --oneline | head -n1 | awk '{print $$1}')
+DOCKER_IMAGE := coprosmo/bdhs-dev
 MAKEFLAGS += --warn-undefined-variables
 SHELL = /bin/bash -o pipefail
 .DEFAULT_GOAL := help
@@ -8,11 +9,20 @@ help:
 
 ## Build docker image
 docker:
-	docker build -t $(DOCKER_IMAGE) -f ./Dockerfile .
+	docker build -t $(DOCKER_IMAGE):$(GIT_TAG) -f ./Dockerfile .
+	docker tag $(DOCKER_IMAGE):$(GIT_TAG) $(DOCKER_IMAGE):latest
+
+docker-push:
+	docker push $(DOCKER_IMAGE):$(GIT_TAG)
+	docker push $(DOCKER_IMAGE):latest
+
+docker-pull:
+	docker pull $(DOCKER_IMAGE):$(GIT_TAG)
+	docker tag $(DOCKER_IMAGE):$(GIT_TAG) $(DOCKER_IMAGE):latest
 
 ## Enter docker image dev container
 enter:
-	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE) bash
+	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest bash
 
 
 .PHONY: test
