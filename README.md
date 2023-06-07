@@ -9,9 +9,15 @@ that we should be able to run experiments the same way everywhere.
 Requirements:
 
 - [Docker](https://docs.docker.com/get-docker/)
+- [A DockerHub account](https://hub.docker.com/) (to access the shared docker image)
 
 ## Development environment
 
+Download the most recent docker image with `make docker-pull`. 
+
+Create a new docker image with `make docker`, followed by `make docker-push` to push
+the new image to the docker registry.
+
 To enter the development environment, run `make enter` from the top level of the
-"bdhs-bounds-2023" directory. A docker environment should launch, and send you to a
+"bdhs-bounds-2023" directory. A docker environment should launch, placing you in a
 bash shell, where you'll have access to prolog and python.
