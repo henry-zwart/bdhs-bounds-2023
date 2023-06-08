@@ -1,3 +1,11 @@
+% States
+s(a).
+s(b).
+s(c).
+s(d).
+s(e).
+s(f).
+
 % Successors
 parent(a,b,forward).
 parent(a,c,forward).
