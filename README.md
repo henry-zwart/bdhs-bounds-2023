@@ -22,5 +22,5 @@ To enter the development environment, run `make enter` from the top level of the
 "bdhs-bounds-2023" directory. A docker environment should launch, placing you in a
 bash shell, where you'll have access to prolog and python.
 
-To enter a prolog interactive shell directly, in the "bdhs-bounds-2023/prolog"
+To enter a prolog interactive shell directly, in the "bdhs-bounds-2023"
 directory, run `make enter-prolog`.
