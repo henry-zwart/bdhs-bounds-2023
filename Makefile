@@ -38,6 +38,10 @@ enter:
 prolog:
 	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest bash -c $(RUN_PROLOG)
 
+enter-problems:
+	docker run -it -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest bash -c "cd prolog/problems; swipl"
+
+.PHONY: test
 ## Run all tests
 test:
 	poetry run py.test tests -v -rxXs
