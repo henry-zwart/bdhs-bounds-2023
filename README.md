@@ -23,4 +23,5 @@ To enter the development environment, run `make enter` from the top level of the
 bash shell, where you'll have access to prolog and python.
 
 To enter a prolog interactive shell directly, in the "bdhs-bounds-2023"
-directory, run `make enter-prolog`.
+directory, run `make prolog`. By default, this launches SWI-Prolog. Scryer-prolog can
+be launched by running `make prolog PROGLOG=scryer` instead.
