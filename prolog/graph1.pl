@@ -1,27 +1,44 @@
+:- use_module(library(lists)).
+
 % States
-s(a).
-s(b).
-s(c).
-s(d).
-s(e).
-s(f).
+s_(a).
+s_(b).
+s_(c).
+s_(d).
+s_(e).
+s_(f).
+
+s(S-0) :- s_(S).
+s(S-1) :- s_(S).
+
 
 % Successors
-parent(a,b,forward).
-parent(a,c,forward).
-parent(b,c,forward).
-parent(c,d,forward).
-parent(d,e,forward).
-parent(d,f,forward).
-parent(e,f,forward).
+forward_parents([
+    [a,b],
+    [a,c], 
+    [b,c],
+    [c,d],
+    [d,e],
+    [d,f],
+    [e,f]
+]).
+backward_parents([
+    [f,e],
+    [f,d],
+    [e,d],
+    [d,c],
+    [c,b],
+    [c,a],
+    [b,a]
+]).
 
-parent(f,e,backward).
-parent(f,d,backward).
-parent(e,d,backward).
-parent(d,c,backward).
-parent(c,b,backward).
-parent(c,a,backward).
-parent(b,a,backward).
+parent(s(X0-0), s(Y0-0)) :-
+    forward_parents(Z),
+    member([X0,Y0], Z).
+
+parent(s(X0-1), s(Y0-1)) :-
+    backward_parents(Z),
+    member([X0,Y0], Z).
 
 % Lower bound graph
 forward_lb(a,f,1).
@@ -40,10 +57,8 @@ forward_lb(d,f,3).
 forward_lb(d,e,4).
 forward_lb(e,f,4).
 
-lb(X,Y,Z) :- forward_lb(X,Y,Z).
-lb(X,Y,Z) :- forward_lb(Y,X,Z).
+lb(s(X-0),s(Y-1),Z) :- forward_lb(X,Y,Z).
+lb(s(X-1),s(Y-0),Z) :- forward_lb(Y,X,Z).
 
-
-descendant(X,Y,D) :- parent(Y,X,D).
-
-descendant(X,Y,D) :- parent(Y,Z,D), descendant(X,Z,D).
+lbs(S, LBs) :-
+    setof(Z, T^lb(S,T,Z), LBs).
