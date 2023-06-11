@@ -1,12 +1,10 @@
-FROM python:3.11-slim-bullseye as base
-
 FROM rust:latest as scryer_builder
 
 RUN git clone https://github.com/mthom/scryer-prolog && \
     cd scryer-prolog && \
     cargo build --release
 
-FROM base as final
+FROM python:3.11-slim-bullseye as final
 
 COPY --from=swipl:latest /usr/lib/swipl/ /usr/lib/swipl/
 COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
