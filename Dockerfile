@@ -9,7 +9,7 @@ FROM python:3.11-slim-bullseye as final
 COPY --from=swipl:latest /usr/lib/swipl/ /usr/lib/swipl/
 COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
 
-RUN ln -s /usr/lib/swipl/bin/aarch64-linux/swipl /usr/bin/swipl && \
+RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     libtcmalloc-minimal4 \
