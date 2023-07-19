@@ -1,0 +1,45 @@
+c_star(3). 
+special_nodes(["f21249", "b21294"]). 
+parent("b21307","b21318",1). 
+parent("b21313","b21322",1). 
+parent("f21265","f21272",1). 
+opposite("f21272","b21298"). 
+parent("f21251","f21257",1). 
+opposite("f21257","b21295"). 
+parent("f21249","f21251",1). 
+opposite("f21251","b21302"). 
+parent("f21249","f21250",1). 
+parent("f21249","f21253",1). 
+parent("f21249","f21252",1). 
+opposite("f21252","b21322"). 
+parent("b21297","b21310",1). 
+parent("f21257","f21258",1). 
+opposite("f21258","b21294"). 
+parent("b21298","b21312",1). 
+parent("b21298","b21313",1). 
+parent("f21268","f21282",1). 
+parent("b21294","b21298",1). 
+parent("b21302","b21303",1). 
+parent("b21295","b21302",1). 
+parent("f21253","f21268",1). 
+parent("b21302","b21304",1). 
+parent("f21252","f21265",1). 
+opposite("f21265","b21313"). 
+parent("f21253","f21266",1). 
+opposite("f21249","b21304"). 
+parent("b21294","b21295",1). 
+parent("b21294","b21297",1). 
+parent("b21294","b21296",1). 
+parent("b21297","b21307",1). 
+lower_bound_pair("f21257","b21294",3). 
+lower_bound_pair("f21251","b21295",3). 
+lower_bound_pair("f21251","b21294",3). 
+lower_bound_pair("f21253","b21294",3). 
+lower_bound_pair("f21252","b21294",3). 
+lower_bound_pair("f21249","b21298",3). 
+lower_bound_pair("f21249","b21302",3). 
+lower_bound_pair("f21249","b21295",3). 
+lower_bound_pair("f21249","b21294",2). 
+lower_bound_pair("f21249","b21297",3). 
+starting_openlistF(["f21257", "f21251", "f21253", "f21252", "f21249"]). 
+starting_openlistB(["b21294", "b21295", "b21298", "b21302", "b21297"]). 

@@ -1,0 +1,28 @@
+{"problems_data": [{"file":"pancake3_new_prolog_files_vidal/pancake3_p0vidal.pl","c_star":0,"start":0,"size":0,"output":  {"0": {"length":1,"set":[]}}},{"file":"pancake3_new_prolog_files_vidal/pancake3_p1vidal.pl","c_star":3,"start":3,"size":9,"output": {"3"
+:
+{"length":16,"set":[[3,"b14",3,"f4",2,"f3"],[3,"b14",3,"f5",2,"f3"],[3,"b15",3,"b14",2,"f3"],[3,"b15",3,"f3",2,"b14"],[3,"b16",3,"b14",2,"f3"],[3,"b16",3,"f3",2,"b14"],[3,"b18",3,"b15",2,"b14"],[3,"b21",3,"b16",2,"b14"],[3,"f10",3,"f5",2,"f3"],[3,"f3",3,"b15",2,"b14"],[3,"f3",3,"b16",2,"b14"],[3,"f4",3,"b14",2,"f3"],[3,"f4",3,"f3",2,"b14"],[3,"f5",3,"b14",2,"f3"],[3,"f5",3,"f3",2,"b14"],[3,"f7",3,"f4",2,"f3"]]},"4"
+:
+{"length":12,"set":[[3,"b14",3,"f4",3,"f5",2,"f3"],[3,"b14",3,"f5",3,"f4",2,"f3"],[3,"b18",3,"b15",3,"b16",2,"b14"],[3,"b18",3,"b16",3,"b15",2,"b14"],[3,"b21",3,"b15",3,"b16",2,"b14"],[3,"b21",3,"b16",3,"b15",2,"b14"],[3,"f10",3,"f4",3,"f5",2,"f3"],[3,"f10",3,"f5",3,"f4",2,"f3"],[3,"f3",3,"b15",3,"b16",2,"b14"],[3,"f3",3,"b16",3,"b15",2,"b14"],[3,"f7",3,"f4",3,"f5",2,"f3"],[3,"f7",3,"f5",3,"f4",2,"f3"]]},"5"
+:
+ {"length":0,"set":[]},"6"
+:
+ {"length":0,"set":[]},"7"
+:
+ {"length":0,"set":[]},"8"
+:
+ {"length":0,"set":[]},"9"
+:
+ {"length":0,"set":[]}}},{"file":"pancake3_new_prolog_files_vidal/pancake3_p2vidal.pl","c_star":1,"start":1,"size":1,"output": {"1"
+:
+{"length":2,"set":[[1,"b30"],[1,"f25"]]}}},{"file":"pancake3_new_prolog_files_vidal/pancake3_p3vidal.pl","c_star":2,"start":2,"size":3,"output": {"2"
+:
+{"length":4,"set":[[2,"b44",2,"f35"],[2,"b46",2,"b44"],[2,"f35",2,"b44"],[2,"f36",2,"f35"]]},"3"
+:
+ {"length":0,"set":[]}}},{"file":"pancake3_new_prolog_files_vidal/pancake3_p4vidal.pl","c_star":2,"start":2,"size":3,"output": {"2"
+:
+{"length":4,"set":[[2,"b62",2,"f53"],[2,"b63",2,"b62"],[2,"f53",2,"b62"],[2,"f55",2,"f53"]]},"3"
+:
+ {"length":0,"set":[]}}},{"file":"pancake3_new_prolog_files_vidal/pancake3_p5vidal.pl","c_star":1,"start":1,"size":1,"output": {"1"
+:
+{"length":2,"set":[[1,"b76"],[1,"f71"]]}}}]}
+

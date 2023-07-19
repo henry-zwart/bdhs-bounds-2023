@@ -1,0 +1,40 @@
+c_star(3). 
+special_nodes(["f9905", "b9946"]). 
+parent("f9907","f9913",1). 
+opposite("f9913","b9949"). 
+parent("f9907","f9912",1). 
+opposite("f9912","b9957"). 
+parent("f9913","f9914",1). 
+opposite("f9914","b9951"). 
+parent("f9913","f9916",1). 
+opposite("f9916","b9946"). 
+parent("b9954","b9955",1). 
+parent("b9949","b9954",1). 
+parent("b9954","b9957",1). 
+parent("b9954","b9956",1). 
+parent("b9949","b9951",1). 
+parent("b9946","b9950",1). 
+parent("b9951","b9961",1). 
+parent("f9926","f9933",1). 
+parent("b9966","b9988",1). 
+parent("f9926","f9931",1). 
+opposite("f9931","b9966"). 
+parent("f9905","f9906",1). 
+parent("f9905","f9907",1). 
+opposite("f9907","b9954"). 
+opposite("f9905","b9956"). 
+parent("f9905","f9909",1). 
+parent("b9947","b9966",1). 
+parent("b9946","b9947",1). 
+parent("b9951","b9962",1). 
+parent("b9946","b9949",1). 
+parent("f9909","f9926",1). 
+opposite("f9926","b9988"). 
+lower_bound_pair("f9913","b9946",3). 
+lower_bound_pair("f9907","b9946",3). 
+lower_bound_pair("f9907","b9949",3). 
+lower_bound_pair("f9905","b9954",3). 
+lower_bound_pair("f9905","b9946",3). 
+lower_bound_pair("f9905","b9949",3). 
+starting_openlistF(["f9913", "f9907", "f9905"]). 
+starting_openlistB(["b9946", "b9949", "b9954"]). 
