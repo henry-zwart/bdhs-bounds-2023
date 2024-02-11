@@ -9,8 +9,6 @@ from typing import Annotated, TypeAlias
 # import pyo3_example
 import typer
 from alive_progress import alive_bar
-from typer import Argument, Option
-
 from pybound.search.a_star_search import a_star_search
 from pybound.search.domains import DomainMode, DomainType
 from pybound.search.memoize import memoize
@@ -18,6 +16,7 @@ from pybound.search.node import Node
 from pybound.search.post_process_b_and_d_values import post_process
 from pybound.utils import serialize
 from pybound.write_prolog import pydantic_to_prolog
+from typer import Argument, Option
 
 from . import __version__
 from .console import get_console, init_logging
