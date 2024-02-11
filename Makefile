@@ -7,14 +7,17 @@ RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /
 
 PANCAKE_SIZES ?= 3 4 5
 SLIDING_TILE_SIZES := 8
+CYCLIC_TILE_SIZES := 8
 
 
 PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
 SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_slidingtile_pl)
-SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES),assets/$(f))
+CYCLIC_TILE_DATA_FILES := $(foreach cs,$(CYCLIC_TILE_SIZES),.$(cs)_cyclictile_pl)
+SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES) $(CYCLIC_TILE_DATA_FILES),assets/$(f))
 
 
 .PHONY: test prolog results prolog_inputs print_test
+.PRECIOUS: assets/%_data.json
 
 
 ifeq ($(PROLOG), swi)

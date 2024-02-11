@@ -169,16 +169,12 @@ def get_results(domain_type: DomainType, mode, size):
     heuristic = domain_type.get_heuristic(mode=mode)
 
     problems = domain.enumerate(size=size)
-    if domain_type == "slidingtile":
-        problems = random.sample(problems, k=min(len(problems), 3))
-
-    # goal = "".join([str(i) for i in range(1, size + 1)])
+    if domain_type in ("slidingtile", "cyclictile"):
+        problems = random.sample(problems, k=min(len(problems), 15))
 
     problems_data = []
     with alive_bar(len(problems)) as bar:
         for initial, goal in problems:
-            # for initial_ in itertools.permutations(goal, r=size):
-            # initial = "".join(initial_)
             problem_f = domain(initial, goal)
             problem_b = domain(goal, initial)
 

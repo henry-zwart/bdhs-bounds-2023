@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use pyo3::prelude::*;
 
 // /// Formats the sum of two numbers as string.
@@ -45,6 +47,26 @@ fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
     h
 }
 
+
+#[pyfunction]
+fn unit_cyclic_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
+    let mut h = 0;
+
+    for i in 1..state_1.len() {
+        h +=
+            min(
+                (state_1[i].0 - state_2[i].0).rem_euclid(3),
+                (state_2[i].0 - state_1[i].0).rem_euclid(3)
+            ) +
+            min(
+                (state_1[i].1 - state_2[i].1).rem_euclid(3),
+                (state_2[i].1 - state_1[i].1).rem_euclid(3),
+            )
+    }
+    
+    h
+}
+
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
@@ -53,6 +75,7 @@ fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
 fn rust_bindings(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(unit_gap, m)?)?;
     m.add_function(wrap_pyfunction!(unit_manhattan, m)?)?;
+    m.add_function(wrap_pyfunction!(unit_cyclic_manhattan, m)?)?;
     // m.add_function(wrap_pyfunction!(unit_gap2, m)?)?;
     Ok(())
 }

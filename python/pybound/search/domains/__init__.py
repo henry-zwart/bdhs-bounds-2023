@@ -1,5 +1,11 @@
 from enum import StrEnum
 
+from .cyclictile import (
+    CyclicTileDomainArbitrary,
+    CyclicTileDomainUnit,
+    cyclic_manhattan_arbitrary,
+    cyclic_manhattan_unit,
+)
 from .domain import Domain
 from .pancake import PancakeDomainArbitrary, PancakeDomainUnit, gap_arbitrary, gap_unit
 from .tile import (
@@ -18,6 +24,7 @@ class DomainMode(StrEnum):
 class DomainType(StrEnum):
     PANCAKE = "pancake"
     SLIDINGTILE = "slidingtile"
+    CYCLICTILE = "cyclictile"
 
     def get_domain(self, mode: DomainMode = DomainMode.UNIT) -> Domain:
         match (self, mode):
@@ -29,6 +36,10 @@ class DomainType(StrEnum):
                 return TileDomainUnit
             case self.SLIDINGTILE, DomainMode.ARBITRARY:
                 return TileDomainArbitrary
+            case self.CYCLICTILE, DomainMode.UNIT:
+                return CyclicTileDomainUnit
+            case self.CYCLICTILE, DomainMode.ARBITRARY:
+                return CyclicTileDomainArbitrary
 
     def get_heuristic(self, mode: DomainMode = DomainMode.UNIT):
         match (self, mode):
@@ -40,3 +51,7 @@ class DomainType(StrEnum):
                 return manhattan_unit
             case self.SLIDINGTILE, DomainMode.ARBITRARY:
                 return manhattan_arbitrary
+            case self.CYCLICTILE, DomainMode.UNIT:
+                return cyclic_manhattan_unit
+            case self.CYCLICTILE, DomainMode.ARBITRARY:
+                return cyclic_manhattan_arbitrary
