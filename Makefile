@@ -5,26 +5,16 @@ PROLOG ?= swi
 RUN_PROLOG ='cd prolog && $(PROLOG_EXECUTABLE)'
 RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
 
-PANCAKE_SIZES := 3
-SLIDING_TILE_SIZES :=
+PANCAKE_SIZES ?= 3 4 5
+SLIDING_TILE_SIZES := 
 
-PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),$(ps)_pancake_data.json)
-SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),$(ss)_sliding_tile_data.json)
+
+PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
+SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_sliding_tile_pl)
 SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES),assets/$(f))
 
-# configurations := \
-# 	assets/3_pancake_search_data.json \
-# 	assets/4_pancake_search_data.json \
-# 	assets/5_pancake_search_data.json
 
-.PHONY: test prolog results search_data
-
-search_data: $(SEARCH_DATA_FILES)
-
-assets/.%_prolog_inputs: assets/%_data.json
-	$(RUN) bash -c "\
-		[ -d assets/$*_prolog_inputs ] || mkdir assets/$*_prolog_inputs && \
-		bdhs json-to-prolog $> assets/$*_prolog_inputs"
+.PHONY: test prolog results prolog_inputs
 
 
 ifeq ($(PROLOG), swi)
@@ -34,6 +24,24 @@ else ifeq ($(PROLOG), scryer)
 else
     $(error Invalid value for PROLOG. Supported values are 'swi' and 'scryer'.)
 endif
+
+
+prolog_inputs: $(SEARCH_DATA_FILES)
+
+assets/.%_pl: assets/%_data.json
+	$(RUN) bash -c "\
+		bdhs json-to-prolog $< assets/$*_prolog_inputs && \
+		touch $@"
+
+
+assets/%_data.json: 
+	$(RUN) bash -c "\
+		[ -d assets ] || mkdir -p assets && \
+		bdhs search-results \
+			$(word 2,$(subst _, ,$(@F))) \
+			--size $(word 1,$(subst _, ,$(@F))) \
+			--results-path $@ \
+	"
 
 help:
 	@awk '/^##.*$$/,/^[~\/\.a-zA-Z_-]+:/' $(MAKEFILE_LIST) | awk '!(NR%2){print $$0p}{p=$$0}' | awk 'BEGIN {FS = ":.*?##"}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' | sort
@@ -52,12 +60,7 @@ docker-pull:
 	docker tag $(DOCKER_IMAGE):$(GIT_TAG) $(DOCKER_IMAGE):latest
 
 # assets/$(PROBLEM_SIZE)_$(DOMAIN)_search_data.json:
-$(SEARCH_DATA_FILES):
-	$(RUN) bash -c "\
-		poetry run bdhs search-results \
-			$(word 2,$(subst _, ,$(@F))) \
-			--size $(word 1,$(subst _, ,$(@F))) \
-			--results-path $@"
+
 
 # $(PROBLEM_SIZE)_$(DOMAIN)_prolog_atoms.
 
