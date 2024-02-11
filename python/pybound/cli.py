@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import json
 import math
+import random
 import time
 from pathlib import Path
 from typing import Annotated, TypeAlias
@@ -62,6 +63,42 @@ app = typer.Typer(
 
 
 @app.command()
+def generate_problems(
+    domain_type: domain_arg,
+    size: problem_size_option,
+    outdir: Annotated[
+        Path, Option(file_okay=False, exists=True, help="dir to write problems to")
+    ],
+    sample: Annotated[int, Option(min=1)] = None,
+):
+    """Writes a set of problems, one per line, to a file."""
+    domain = domain_type.get_domain()
+    sample_problems = domain.enumerate(size=size, n=sample)
+    # problem_lines = [
+    #     "-".join([str(i), *(map(str, p))]) + "\n" for i, p in enumerate(sample_problems)
+    # ]
+    # problem_lines[-1] = problem_lines[-1].strip()
+    for i, (I, G) in enumerate(sample_problems):
+        with (outdir / f"{i}_{I}_{G}").open("w"):
+            ...
+    # with outfile.open("w") as f:
+    #     f.writelines(problem_lines)
+
+    # print(sample_problems)
+
+
+@app.command()
+def generate_problem_json(
+    domain_type: domain_arg,
+    initial: Annotated[str, Option(help="initial state")],
+    goal: Annotated[str, Option(help="goal state")],
+    outfile: Annotated[
+        Path, Option(dir_okay=False, exists=False, help="file to write json to")
+    ],
+): ...
+
+
+@app.command()
 def json_to_prolog(
     input_json_path: Annotated[
         Path, Argument(exists=True, help="Json file to decode into searchproblems obj")
@@ -116,78 +153,32 @@ def search_results(
     size: problem_size_option = 8,
     results_path: Path = None,
 ):
-    cons = get_console()
-    if domain_type == DomainType.SLIDING_TILE:
-        cons.exit_with_error("Sliding tile not yet supported.")
-    if domain_type == DomainType.SLIDING_TILE and size not in [8, 15]:
-        cons.exit_with_error(f"Invalid problem size for sliding tile domain: {size}")
+    # cons = get_console()
+    # if domain_type == DomainType.SLIDING_TILE:
+    #     cons.exit_with_error("Sliding tile not yet supported.")
+    # if domain_type == DomainType.SLIDING_TILE and size not in [8, 15]:
+    #     cons.exit_with_error(f"Invalid problem size for sliding tile domain: {size}")
 
     all_data = get_results(domain_type, mode, size)
     with results_path.open("w") as f:
         json.dump(all_data.dict(), f)
-    # domain = domain_type.get_domain(mode=mode)
-    # heuristic = domain_type.get_heuristic(mode=mode)
-
-    # goal = "".join([str(i) for i in range(1, size + 1)])
-
-    # problems_data = []
-    # with alive_bar(math.factorial(len(goal))) as bar:
-    #     for initial_ in itertools.permutations(goal, r=size):
-    #         initial = "".join(initial_)
-    #         problem_f = domain(initial, goal)
-    #         problem_b = domain(goal, initial)
-
-    #         solution_nodes_f, closed_list_f = a_star_search(problem_f, heuristic)
-    #         _, closed_list_b = a_star_search(problem_b, heuristic)
-
-    #         post_process(closed_list_f, closed_list_b, heuristic, problem_f)
-    #         states = make_states(closed_list_f, closed_list_b)
-    #         states_by_idx = {s.idx: s for s in states}
-
-    #         initial_index = closed_list_f[problem_f.initial].id
-    #         goal_index = closed_list_b[problem_b.initial].id
-
-    #         solution_cost = solution_nodes_f[0].g
-    #         solution_length = solution_nodes_f[0].solution_length()
-
-    #         f2f_heuristics = compute_f2f_hs(
-    #             list(closed_list_f.values()),
-    #             list(closed_list_b.values()),
-    #             heuristic,
-    #             solution_cost,
-    #         )
-
-    #         problems_data.append(
-    #             SearchProblemData(
-    #                 domain=domain_type,
-    #                 mode=mode,
-    #                 size=size,
-    #                 initial_state_idx=initial_index,
-    #                 goal_state_idx=goal_index,
-    #                 solution_cost=solution_cost,
-    #                 solution_length=solution_length,
-    #                 state_by_idx=states_by_idx,
-    #                 front_to_front_h=f2f_heuristics,
-    #             )
-    #         )
-    #         bar()
-
-    # all_data = SearchProblems(problems_data=problems_data)
-    # with results_path.open("w") as f:
-    #     json.dump(all_data.dict(), f)
-    # cons.print(problems_data)
 
 
-def get_results(domain_type, mode, size):
+def get_results(domain_type: DomainType, mode, size):
     domain = domain_type.get_domain(mode=mode)
     heuristic = domain_type.get_heuristic(mode=mode)
 
-    goal = "".join([str(i) for i in range(1, size + 1)])
+    problems = domain.enumerate(size=size)
+    if domain_type == "slidingtile":
+        problems = random.sample(problems, k=min(len(problems), 3))
+
+    # goal = "".join([str(i) for i in range(1, size + 1)])
 
     problems_data = []
-    with alive_bar(math.factorial(len(goal))) as bar:
-        for initial_ in itertools.permutations(goal, r=size):
-            initial = "".join(initial_)
+    with alive_bar(len(problems)) as bar:
+        for initial, goal in problems:
+            # for initial_ in itertools.permutations(goal, r=size):
+            # initial = "".join(initial_)
             problem_f = domain(initial, goal)
             problem_b = domain(goal, initial)
 

@@ -6,15 +6,15 @@ RUN_PROLOG ='cd prolog && $(PROLOG_EXECUTABLE)'
 RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
 
 PANCAKE_SIZES ?= 3 4 5
-SLIDING_TILE_SIZES := 
+SLIDING_TILE_SIZES := 8
 
 
 PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
-SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_sliding_tile_pl)
+SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_slidingtile_pl)
 SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES),assets/$(f))
 
 
-.PHONY: test prolog results prolog_inputs
+.PHONY: test prolog results prolog_inputs print_test
 
 
 ifeq ($(PROLOG), swi)
@@ -24,7 +24,6 @@ else ifeq ($(PROLOG), scryer)
 else
     $(error Invalid value for PROLOG. Supported values are 'swi' and 'scryer'.)
 endif
-
 
 prolog_inputs: $(SEARCH_DATA_FILES)
 
@@ -42,6 +41,7 @@ assets/%_data.json:
 			--size $(word 1,$(subst _, ,$(@F))) \
 			--results-path $@ \
 	"
+
 
 help:
 	@awk '/^##.*$$/,/^[~\/\.a-zA-Z_-]+:/' $(MAKEFILE_LIST) | awk '!(NR%2){print $$0p}{p=$$0}' | awk 'BEGIN {FS = ":.*?##"}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' | sort

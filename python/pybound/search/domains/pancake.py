@@ -1,3 +1,6 @@
+import itertools
+import random
+
 from rust_bindings import unit_gap
 
 from .domain import Domain
@@ -11,6 +14,15 @@ class PancakeDomain(Domain):
         initial = tuple([int(i) for i in initial] + table)
         goal = tuple([int(i) for i in goal] + table)
         super().__init__(initial, goal)  # assumes the goal state is [1,2,3,...,n]
+
+    def enumerate(size: int):
+        if size > 9:
+            raise RuntimeError("Pancake domain only supports up to 9 pancakes.")
+        goal = "".join((str(i) for i in range(1, size + 1)))
+        problems = [
+            ("".join(initial), goal) for initial in itertools.permutations(goal, r=size)
+        ]
+        return problems
 
     def actions(self, state):
         """Returns the index of the pancake that is under the flipper. This pancake will not be flipped. DO NOT MOVE THE TABLE (THE HIGHEST NUM)!"""

@@ -1,7 +1,9 @@
+import itertools
 import math
 from abc import abstractmethod
 
 from pybound.exceptions import ProblemFormatError
+from rust_bindings import unit_manhattan
 
 from .domain import Domain
 
@@ -13,6 +15,15 @@ class TileDomain(Domain):
         initial = tuple((int(loc) % 3, int(loc) // 3) for loc in initial)
         goal = tuple((int(loc) % 3, int(loc) // 3) for loc in goal)
         super().__init__(initial, goal)
+
+    def enumerate(size: int):
+        problems = []
+        goal = "801234567"
+        for p in itertools.permutations((8, 0, 1, 2, 3, 4, 5, 6, 7), r=len(goal)):
+            if count_inversions(p) % 2 != 0:
+                continue
+            problems.append(("".join(map(str, p)), goal))
+        return problems
 
     def actions(self, state):
         possible_actions = []
@@ -77,6 +88,33 @@ class TileDomainArbitrary(TileDomain):
         return c + swapped_tile
 
 
+def count_inversions(state):
+    inversions = 0
+    for tile, loc in enumerate(state[2:], start=2):
+        for other_loc in state[1:tile]:
+            if other_loc > loc:
+                inversions += 1
+    return inversions
+
+
+# def count_inversions(state):
+#     inversions = 0
+#     gameSize = len(state)
+#     for i, item in enumerate(state):
+#         if item == 0:
+#             continue
+#         for j in range(1, gameSize - i):
+#             item2 = state[i + j]
+#             if item2 == 0:
+#                 continue
+#             elif item > item2:
+#                 inversions += 1
+#     print(state)
+#     print(inversions)
+#     print()
+#     return inversions
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - -  Heuristics
 
@@ -87,20 +125,30 @@ def manhattan_distance(currentLocation, goalLocation):
     )
 
 
-def manhattan_unit(node, goal_state):
-    if type(goal_state) is not tuple:
-        goal_state = goal_state.state
-    state = node.state
-    h = 0
-    for i in range(1, len(state)):  # skip the blank tile
-        h += manhattan_distance(state[i], goal_state[i])
-    return h
+def manhattan_unit(node, state_2):
+    if type(state_2) is not tuple:
+        state_2 = state_2.state
+    try:
+        state_1 = node.state
+    except AttributeError:
+        state_1 = node
+
+    # h1 = unit_manhattan(state_1, state_2)
+    # h2 = 0
+    # for i in range(1, len(state_1)):  # skip the blank tile
+    #     h2 += manhattan_distance(state_1[i], state_2[i])
+
+    # assert h1 == h2
+    return unit_manhattan(state_1, state_2)
 
 
 def manhattan_arbitrary(node, goal_state):
     if type(goal_state) is not tuple:
         goal_state = goal_state.state
-    state = node.state
+    try:
+        state = node.state
+    except AttributeError:
+        state = node
     h = 0
     for i in range(1, len(state)):  # skip the blank tile
         h += i * manhattan_distance(state[i], goal_state[i])

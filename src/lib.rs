@@ -34,6 +34,17 @@ fn unit_gap(state_1: Vec<i32>, state_2: Vec<i32>) -> i32 {
     heuristic_value
 }
 
+#[pyfunction]
+fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
+    let mut h = 0;
+
+    for i in 1..state_1.len() {
+        h += (state_1[i].0 - state_2[i].0).abs() + (state_1[i].1 - state_2[i].1).abs()
+    }
+    
+    h
+}
+
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
@@ -41,6 +52,7 @@ fn unit_gap(state_1: Vec<i32>, state_2: Vec<i32>) -> i32 {
 #[pyo3(name="rust_bindings")]
 fn rust_bindings(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(unit_gap, m)?)?;
+    m.add_function(wrap_pyfunction!(unit_manhattan, m)?)?;
     // m.add_function(wrap_pyfunction!(unit_gap2, m)?)?;
     Ok(())
 }

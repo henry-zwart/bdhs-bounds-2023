@@ -15,6 +15,11 @@ class Domain(ABC):
         self.goal = goal
 
     @abstractmethod
+    def enumerate(size: int):
+        """Returns the list of problems in the domain."""
+        pass
+
+    @abstractmethod
     def actions(self, state):
         """Return the actions that can be executed in the given
         state. The result would typically be a list, but if there are

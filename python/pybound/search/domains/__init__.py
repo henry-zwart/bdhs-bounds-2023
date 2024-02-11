@@ -17,7 +17,7 @@ class DomainMode(StrEnum):
 
 class DomainType(StrEnum):
     PANCAKE = "pancake"
-    SLIDING_TILE = "sliding-tile"
+    SLIDINGTILE = "slidingtile"
 
     def get_domain(self, mode: DomainMode = DomainMode.UNIT) -> Domain:
         match (self, mode):
@@ -25,9 +25,9 @@ class DomainType(StrEnum):
                 return PancakeDomainUnit
             case self.PANCAKE, DomainMode.ARBITRARY:
                 return PancakeDomainArbitrary
-            case self.SLIDING_TILE, DomainMode.UNIT:
+            case self.SLIDINGTILE, DomainMode.UNIT:
                 return TileDomainUnit
-            case self.SLIDING_TILE, DomainMode.ARBITRARY:
+            case self.SLIDINGTILE, DomainMode.ARBITRARY:
                 return TileDomainArbitrary
 
     def get_heuristic(self, mode: DomainMode = DomainMode.UNIT):
@@ -36,7 +36,7 @@ class DomainType(StrEnum):
                 return gap_unit
             case self.PANCAKE, DomainMode.ARBITRARY:
                 return gap_arbitrary
-            case self.SLIDING_TILE, DomainMode.UNIT:
+            case self.SLIDINGTILE, DomainMode.UNIT:
                 return manhattan_unit
-            case self.SLIDING_TILE, DomainMode.ARBITRARY:
+            case self.SLIDINGTILE, DomainMode.ARBITRARY:
                 return manhattan_arbitrary
