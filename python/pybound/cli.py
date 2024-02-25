@@ -110,12 +110,15 @@ def json_to_prolog(
     output_path.mkdir(parents=True, exist_ok=True)
     with input_json_path.open() as f:
         json_dict = json.loads(f.read())
-    for i, problem in enumerate(SearchProblems(**json_dict).problems_data):
-        axioms = pydantic_to_prolog(problem)
-        with (output_path / f"{problem.size}_{problem.domain}_{i}_f2e.pl").open(
-            "w"
-        ) as f:
-            f.writelines(map(lambda x: f"{x}\n", axioms))
+    problems = SearchProblems(**json_dict)
+    with alive_bar(len(problems.problems_data)) as bar:
+        for i, problem in enumerate(problems.problems_data):
+            axioms = pydantic_to_prolog(problem)
+            with (output_path / f"{problem.size}_{problem.domain}_{i}_f2e.pl").open(
+                "w"
+            ) as f:
+                f.writelines(map(lambda x: f"{x}\n", axioms))
+            bar()
 
 
 @app.command(no_args_is_help=True)
