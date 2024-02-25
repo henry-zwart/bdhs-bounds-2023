@@ -174,7 +174,7 @@ def get_results(domain_type: DomainType, mode, size, blind=False):
 
     problems = domain.enumerate(size=size)
     if domain_type in ("slidingtile", "cyclictile"):
-        problems = random.sample(problems, k=min(len(problems), 10))
+        problems = random.sample(problems, k=min(len(problems), 100))
 
     problems_data = []
     with alive_bar(len(problems)) as bar:
