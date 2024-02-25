@@ -5,9 +5,9 @@ PROLOG ?= swi
 RUN_PROLOG ='cd prolog && $(PROLOG_EXECUTABLE)'
 RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
 
-PANCAKE_SIZES ?= 3 4 5 6 7
-SLIDING_TILE_SIZES := 8
-CYCLIC_TILE_SIZES := 8
+PANCAKE_SIZES ?= 3
+SLIDING_TILE_SIZES :=
+CYCLIC_TILE_SIZES :=
 
 
 PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
@@ -36,7 +36,7 @@ assets/.%_pl: assets/%_data.json
 		touch $@"
 
 
-assets/%_data.json: 
+assets/%_data.json: python/pybound/write_prolog.py
 	$(RUN) bash -c "\
 		[ -d assets ] || mkdir -p assets && \
 		bdhs search-results \
@@ -84,7 +84,7 @@ testfailed:
 	poetry run py.test tests -v -rxXs --last-failed
 
 clean:
-	$(RUN) rm -rf assets/*.json
+	$(RUN) rm -rf assets/*.json assets/*_prolog_inputs assets/.*_pl
 
 ## Run precommit tests
 pre:

@@ -1,4 +1,13 @@
-from .schema import SearchProblemData, State, StateValues
+from enum import StrEnum
+
+from .schema import SearchProblemData, State
+
+
+class LbKind(StrEnum):
+    F2E = "f2e"
+    F2F = "f2f"
+    VIDAL = "vidal"
+
 
 EPSILON = 1
 
@@ -19,6 +28,10 @@ def get_problem_level_axioms(problem_data: SearchProblemData):
         problem_data.state_by_idx[problem_data.goal_state_idx]
     )
     return [
+        f"domain({problem_data.domain}).",
+        f"mode({problem_data.mode}).",
+        f"heuristic({problem_data.heuristic}).",
+        f"size({problem_data.size}).",
         f"c_star({problem_data.solution_cost}).",
         f"special_nodes([{initial_state_name},{goal_state_name}]).",
     ]
@@ -66,7 +79,7 @@ def get_opposite_state_axioms(idx_to_state):
     return axioms
 
 
-def regular_lb(state, other):
+def regular_lb(state, other, *_args):
     return max(
         state.values.g + state.values.h,
         other.values.g + other.values.h,
@@ -74,7 +87,13 @@ def regular_lb(state, other):
     )
 
 
-def vidal_lb(state, other):
+def f2f_lb(state, other, f2f_hs):
+    if state in f2f_hs and other in f2f_hs[state]:
+        return state.values.g + other.values.g + f2f_hs[state][other]
+    return None
+
+
+def vidal_lb(state, other, *_args):
     return max(
         state.values.g + other.values.g + EPSILON,
         state.values.g + state.values.h + other.values.d,
@@ -82,36 +101,71 @@ def vidal_lb(state, other):
     )
 
 
-def get_lbs(idx_to_state):
+def get_lbs(idx_to_state, f2f_hs, kind: LbKind):
     fw_states = list(filter(lambda s: s.direction == 0, idx_to_state.values()))
     bw_states = list(filter(lambda s: s.direction == 1, idx_to_state.values()))
-    return {(fs, bs): regular_lb(fs, bs) for fs in fw_states for bs in bw_states}
+    match kind:
+        case LbKind.F2E:
+            lb_fn = regular_lb
+        case LbKind.F2F:
+            lb_fn = f2f_lb
+            f2f_hs = get_f2f_by_state(f2f_hs, idx_to_state)
+        case LbKind.VIDAL:
+            lb_fn = vidal_lb
+        case _:
+            raise ValueError(f"Unknown lower bound type: {kind}")
+    return {
+        (fs, bs): lb
+        for fs in fw_states
+        for bs in bw_states
+        if (lb := lb_fn(fs, bs, f2f_hs)) is not None
+    }
 
 
-# def get_lb_axioms(idx_to_state, cstar):
-#     axioms = []
-#     fw_states = list(filter(lambda s: s.direction == 0, idx_to_state.values()))
-#     bw_states = list(filter(lambda s: s.direction == 1, idx_to_state.values()))
-#     for fs in fw_states:
-#         for bs in bw_states:
-#             lb = regular_lb(fs, bs)
-#             if lb <= cstar:
-#                 axioms.append(
-#                     f"lower_bound_pair({state_prolog_name(fs)},{state_prolog_name(bs)},{lb})."
-#                 )
-#     return axioms
-
-
-def get_lb_axioms(idx_to_state, cstar):
-    pair_lbs = {pair: lb for (pair, lb) in get_lbs(idx_to_state).items() if lb <= cstar}
+def get_lb_axioms(idx_to_state, f2f_hs, cstar, kind: LbKind):
+    pair_lbs = {
+        pair: lb
+        for (pair, lb) in get_lbs(idx_to_state, f2f_hs, kind).items()
+        if lb <= cstar
+    }
     return [
-        f"lower_bound_pair({state_prolog_name(fs)},{state_prolog_name(bs)},{lb})."
+        f"{kind}_lower_bound_pair({state_prolog_name(fs)},{state_prolog_name(bs)},{lb})."
         for ((fs, bs), lb) in pair_lbs.items()
     ]
 
 
+def get_f2f_by_state(f2f_values, idx_to_state):
+    f2f_by_state = {}
+    for h, pairs in f2f_values.items():
+        for idx_1, idx_2 in pairs:
+            s1 = idx_to_state[idx_1]
+            s2 = idx_to_state[idx_2]
+            if s1 not in f2f_by_state:
+                f2f_by_state[s1] = dict()
+            f2f_by_state[s1][s2] = h
+    return f2f_by_state
+
+
+def get_f2f_h_axioms(idx_to_state, f2f_values):
+    f2f_by_state = get_f2f_by_state(f2f_values, idx_to_state)
+    axioms = []
+    fw_states = list(filter(lambda s: s.direction == 0, idx_to_state.values()))
+    for fs in fw_states:
+        if fs not in f2f_by_state:
+            continue
+        for bs, h in f2f_by_state[fs].items():
+            axioms.append(
+                f"h_f2f({state_prolog_name(fs)},{state_prolog_name(bs)},{h})."
+            )
+    return axioms
+
+
 def get_openlist_axioms(idx_to_state, cstar):
-    pair_lbs = {pair: lb for (pair, lb) in get_lbs(idx_to_state).items() if lb <= cstar}
+    pair_lbs = {
+        pair: lb
+        for (pair, lb) in get_lbs(idx_to_state, None, LbKind.F2E).items()
+        if lb <= cstar
+    }
     must_expand_states_fw = {fs for (fs, _) in pair_lbs.keys()}
     must_expand_states_bw = {bs for (_, bs) in pair_lbs.keys()}
     openlist_fw = [state_prolog_name(s) for s in must_expand_states_fw]
@@ -128,7 +182,17 @@ def pydantic_to_prolog(problem_data: SearchProblemData):
     axioms.extend(get_prolog_state_value_axioms(idx_to_state))
     axioms.extend(get_prolog_parent_axioms(idx_to_state))
     axioms.extend(get_opposite_state_axioms(idx_to_state))
-    axioms.extend(get_lb_axioms(idx_to_state, problem_data.solution_cost))
+    axioms.extend(get_f2f_h_axioms(idx_to_state, problem_data.front_to_front_h))
     axioms.extend(get_openlist_axioms(idx_to_state, problem_data.solution_cost))
+
+    for lb_kind in LbKind:
+        axioms.extend(
+            get_lb_axioms(
+                idx_to_state,
+                problem_data.front_to_front_h,
+                problem_data.solution_cost,
+                lb_kind,
+            )
+        )
 
     return axioms

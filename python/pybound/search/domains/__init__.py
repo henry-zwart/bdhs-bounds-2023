@@ -55,3 +55,12 @@ class DomainType(StrEnum):
                 return cyclic_manhattan_unit
             case self.CYCLICTILE, DomainMode.ARBITRARY:
                 return cyclic_manhattan_arbitrary
+
+    def get_heuristic_name(self):
+        match self:
+            case self.PANCAKE:
+                return "gap"
+            case self.SLIDINGTILE:
+                return "manhattan"
+            case self.CYCLICTILE:
+                return "cyclic_manhattan"

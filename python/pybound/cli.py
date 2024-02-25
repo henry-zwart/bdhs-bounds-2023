@@ -164,13 +164,14 @@ def search_results(
         json.dump(all_data.dict(), f)
 
 
-def get_results(domain_type: DomainType, mode, size):
+def get_results(domain_type: DomainType, mode, size, blind=False):
     domain = domain_type.get_domain(mode=mode)
     heuristic = domain_type.get_heuristic(mode=mode)
+    heuristic_name = "blind" if blind else domain_type.get_heuristic_name()
 
     problems = domain.enumerate(size=size)
     if domain_type in ("slidingtile", "cyclictile"):
-        problems = random.sample(problems, k=min(len(problems), 30))
+        problems = random.sample(problems, k=min(len(problems), 10))
 
     problems_data = []
     with alive_bar(len(problems)) as bar:
@@ -203,6 +204,7 @@ def get_results(domain_type: DomainType, mode, size):
                     domain=domain_type,
                     mode=mode,
                     size=size,
+                    heuristic=heuristic_name,
                     initial_state_idx=initial_index,
                     goal_state_idx=goal_index,
                     solution_cost=solution_cost,

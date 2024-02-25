@@ -34,6 +34,7 @@ class SearchProblemData(BaseModel):
     domain: str
     mode: str
     size: int
+    heuristic: str
 
     initial_state_idx: int
     goal_state_idx: int
