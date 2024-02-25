@@ -5,9 +5,9 @@ PROLOG ?= swi
 RUN_PROLOG ='cd prolog && $(PROLOG_EXECUTABLE)'
 RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
 
-PANCAKE_SIZES ?= 3
-SLIDING_TILE_SIZES :=
-CYCLIC_TILE_SIZES :=
+PANCAKE_SIZES ?= 3 4 5 6 7
+SLIDING_TILE_SIZES := 8
+CYCLIC_TILE_SIZES := 8
 
 
 PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
