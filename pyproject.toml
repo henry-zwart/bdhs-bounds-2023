@@ -23,6 +23,11 @@ isort = "^5.10.1"
 pre-commit = "^2.20.0"
 ruff = "^0.0.257"
 maturin = "^1.4"
+seaborn = "^0.13.2"
+matplotlib = "^3.8"
+pandas = "^2.2"
+polars = "^0.20"
+numpy = "^1.26"
 
 
 [tool.poetry.scripts]
