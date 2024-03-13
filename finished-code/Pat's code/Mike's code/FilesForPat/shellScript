@@ -1,0 +1,8 @@
+    /Applications/SWI-Prolog.app/Contents/MacOS/swipl -g
+    "  %%%% consult('prolog/final_new_auto.pl'),
+    consult('totalV05R2'),
+    consult('statsV01R2'),
+    consult('pancakeMods'),
+    consult('transIntoJSON'),
+    consult('/Users/mbar098/MikesStuff/Academic.d/Research.d/BidirectionalSearch.d/CollabWithHenryNatasha.d/Software.d/pancake.d/pancake3_mike_prolog_files_f2e/3_pancake_2_f2eHenry.pl'),
+    consult('mike_file.pl'),halt." 
