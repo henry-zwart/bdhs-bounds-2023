@@ -1,9 +1,12 @@
+-include .env
 GIT_TAG ?= $(shell git log --oneline | head -n1 | awk '{print $$1}')
 DOCKER_IMAGE := coprosmo/bdhs-dev
 SHELL = /bin/bash -o pipefail
 PROLOG ?= swi
 RUN_PROLOG ='cd prolog && $(PROLOG_EXECUTABLE)'
-RUN := docker run --platform linux/amd64 -it -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
+# RUN := docker run --platform linux/amd64 -it -rm -v $$(pwd)/assets:/code/assets -w /code $(DOCKER_IMAGE):latest
+
+RUN := docker run --platform linux/amd64 -it --rm -v $$(pwd):/code -w /code $(DOCKER_IMAGE):latest
 
 PANCAKE_SIZES ?= 3 4 5 6
 SLIDING_TILE_SIZES := 8
@@ -30,15 +33,21 @@ endif
 
 prolog_inputs: $(SEARCH_DATA_FILES)
 
-assets/.%_pl: assets/%_data.json
+assets: 
+	mkdir -p assets
+
+assets/.%_pl: \
+			assets/%_data.json \
+			assets
 	$(RUN) bash -c "\
 		bdhs json-to-prolog $< assets/$*_prolog_inputs && \
 		touch $@"
 
 
-assets/%_data.json: python/pybound/write_prolog.py
+assets/%_data.json: \
+			python/pybound/write_prolog.py \
+			assets
 	$(RUN) bash -c "\
-		[ -d assets ] || mkdir -p assets && \
 		bdhs search-results \
 			$(word 2,$(subst _, ,$(@F))) \
 			--size $(word 1,$(subst _, ,$(@F))) \
@@ -51,7 +60,7 @@ help:
 
 ## Build docker image
 docker:
-	docker build --platform linux/amd64 -t $(DOCKER_IMAGE):$(GIT_TAG) -f ./Dockerfile .
+	docker build --platform linux/amd64 --progress=plain -t $(DOCKER_IMAGE):$(GIT_TAG) -f ./Dockerfile .
 	docker tag $(DOCKER_IMAGE):$(GIT_TAG) $(DOCKER_IMAGE):latest
 
 docker-push:

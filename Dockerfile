@@ -13,56 +13,64 @@ COPY Cargo.* ./
 COPY src src
 RUN maturin build --release -i 'python3.11'
 
-# === Pull everything together
-FROM python:3.11-slim-bullseye as final
+
+FROM python:3.11-slim-bullseye as python-base
+
+ENV PYTHONUNBUFFERED=1 \
+    # prevents python creating .pyc files
+    PYTHONDONTWRITEBYTECODE=1 \
+    \
+    # pip
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    \
+    # poetry
+    # https://python-poetry.org/docs/configuration/#using-environment-variables
+    POETRY_VERSION=1.8.2 \
+    # make poetry install to this location
+    POETRY_HOME="/opt/poetry" \
+    # make poetry create the virtual environment in the project's root
+    # it gets named `.venv`
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    # do not ask any interactive question
+    POETRY_NO_INTERACTION=1 \
+    \
+    # paths
+    # this is where our requirements + virtual environment will live
+    PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv" \
+    # Rust error messages
+    RUST_BACKTRACE=1
+
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
+
+FROM python-base as python-builder
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        # deps for installing poetry
+        curl \
+        # deps for building python deps
+        build-essential
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# copy project requirement files here to ensure they will be cached.
+WORKDIR $PYSETUP_PATH
+COPY poetry.lock pyproject.toml README.md ./
+COPY python ./python
+COPY --from=rust_binding_builder /work/target/wheels/rust_bindings-0.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl .
+
+RUN poetry install -v && \
+    poetry run pip install rust_bindings-0.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+
+
+FROM python-base as final
 
 WORKDIR /code
 
 COPY --from=swipl:latest /usr/lib/swipl/ /usr/lib/swipl/
 COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
-COPY --from=rust_binding_builder /work/target/wheels/rust_bindings-0.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl .
-
-RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libtcmalloc-minimal4 \
-    libarchive13 \
-    libyaml-dev \
-    libgmp10 \
-    libossp-uuid16 \
-    libssl1.1 \
-    ca-certificates \
-    libdb5.3 \
-    libpcre2-8-0 \
-    libedit2 \
-    libgeos-3.9.0 \
-    libspatialindex6 \
-    unixodbc \
-    odbc-postgresql \
-    tdsodbc \
-    libmariadbclient-dev-compat \
-    libsqlite3-0 \
-    libserd-0-0 \
-    libraptor2-0 && \
-    dpkgArch="$(dpkg --print-architecture)" && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV PIP_DEFAULT_TIMEOUT=100 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
-    POETRY_VERSION=1.7 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    VENV_PATH="/code/.venv" \
-    RUST_BACKTRACE=1
-
-
-
-RUN pip install "poetry==$POETRY_VERSION"
-
-COPY pyproject.toml poetry.lock ./
-COPY . .
-
-RUN poetry install -v && \
-    poetry run pip install rust_bindings-0.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-
-ENV PATH="$VENV_PATH/bin:$PATH"
+COPY --from=python-builder $PYSETUP_PATH $PYSETUP_PATH
