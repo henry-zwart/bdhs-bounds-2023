@@ -60,7 +60,7 @@ help:
 
 ## Build docker image
 docker:
-	docker build --platform linux/amd64 --progress=plain -t $(DOCKER_IMAGE):$(GIT_TAG) -f ./Dockerfile .
+	docker build --platform linux/amd64 -t $(DOCKER_IMAGE):$(GIT_TAG) -f ./Dockerfile .
 	docker tag $(DOCKER_IMAGE):$(GIT_TAG) $(DOCKER_IMAGE):latest
 
 docker-push:
