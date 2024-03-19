@@ -14,7 +14,7 @@ COPY src src
 RUN maturin build --release -i 'python3.11'
 
 
-FROM python:3.11-slim-bullseye as python-base
+FROM python:3.11-slim-bookworm as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
@@ -71,6 +71,33 @@ FROM python-base as final
 
 WORKDIR /code
 
-COPY --from=swipl:latest /usr/lib/swipl/ /usr/lib/swipl/
+COPY --from=swipl:9.2.2 /usr/lib/swipl/ /usr/lib/swipl/
 COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
 COPY --from=python-builder $PYSETUP_PATH $PYSETUP_PATH
+
+RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
+    DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libtcmalloc-minimal4 \
+    libarchive13 \
+    libyaml-0-2 \
+    libgmp10 \
+    libossp-uuid16 \
+    libssl3 \
+    ca-certificates \
+    libdb5.3 \
+    libpcre2-8-0 \
+    libedit2 \
+    libgeos3.11.1 \
+    libspatialindex6 \
+    unixodbc \
+    odbc-postgresql \
+    tdsodbc \
+    libmariadbclient-dev-compat \
+    libsqlite3-0 \
+    libserd-0-0 \
+    libpython3.11 \
+    libraptor2-0 && \
+    dpkgArch="$(dpkg --print-architecture)" && \
+    rm -rf /var/lib/apt/lists/*
