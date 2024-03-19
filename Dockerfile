@@ -1,8 +1,8 @@
-FROM rust:latest as scryer_builder
+# FROM rust:latest as scryer_builder
 
-RUN git clone https://github.com/mthom/scryer-prolog && \
-    cd scryer-prolog && \
-    cargo build --release
+# RUN git clone https://github.com/mthom/scryer-prolog && \
+#     cd scryer-prolog && \
+#     cargo build --release
 
 
 # === Build rust bindings
@@ -72,7 +72,7 @@ FROM python-base as final
 WORKDIR /code
 
 COPY --from=swipl:9.2.2 /usr/lib/swipl/ /usr/lib/swipl/
-COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
+# COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
 COPY --from=python-builder $PYSETUP_PATH $PYSETUP_PATH
 
 RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
