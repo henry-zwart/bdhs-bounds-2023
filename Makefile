@@ -12,10 +12,12 @@ PANCAKE_SIZES ?= 3 4 5 6
 SLIDING_TILE_SIZES := 8
 CYCLIC_TILE_SIZES := 8
 
+PANCAKE_DEGRADATIONS := 0 1 2
 
-PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),.$(ps)_pancake_pl)
-SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_slidingtile_pl)
-CYCLIC_TILE_DATA_FILES := $(foreach cs,$(CYCLIC_TILE_SIZES),.$(cs)_cyclictile_pl)
+
+PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),$(foreach d,$(PANCAKE_DEGRADATIONS),.$(ps)_d$(d)_pancake_pl))
+SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_d0_slidingtile_pl)
+CYCLIC_TILE_DATA_FILES := $(foreach cs,$(CYCLIC_TILE_SIZES),.$(cs)_d0_cyclictile_pl)
 SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES) $(CYCLIC_TILE_DATA_FILES),assets/$(f))
 
 
@@ -49,8 +51,9 @@ assets/%_data.json: \
 			assets
 	$(RUN) bash -c "\
 		bdhs search-results \
-			$(word 2,$(subst _, ,$(@F))) \
+			$(word 3,$(subst _, ,$(@F))) \
 			--size $(word 1,$(subst _, ,$(@F))) \
+			--degradation $(subst d,,$(word 2,$(subst _, ,$(@F)))) \
 			--results-path $@ \
 	"
 

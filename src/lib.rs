@@ -1,4 +1,4 @@
-use std::cmp::min;
+use std::{cmp::min, collections::HashSet};
 
 use pyo3::prelude::*;
 
@@ -9,13 +9,17 @@ use pyo3::prelude::*;
 // }
 
 #[pyfunction]
-fn unit_gap(state_1: Vec<i32>, state_2: Vec<i32>) -> i32 {
+fn unit_gap(state_1: Vec<i32>, state_2: Vec<i32>, degradation: i32) -> i32 {
     let mut heuristic_value = 0;
-    // let goal_positions: HashMap<_, _> = state_2.iter().enumerate().map(|(i, x)| (*x, i)).collect();
+    let ignored_pancakes: HashSet<i32> = (1..=degradation).collect();
 
     for i in 0..state_1.len() - 1 {
         let pancake_i = state_1[i];
         let pancake_j = state_1[i + 1];
+
+        if ignored_pancakes.contains(&pancake_i) | ignored_pancakes.contains(&pancake_j) {
+            continue;
+        }
 
         let goal_position_i = state_2.iter().position(|&x| x == pancake_i).unwrap();
 
@@ -81,3 +85,35 @@ fn rust_bindings(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 }
 
 pub mod tile;
+
+#[cfg(test)]
+mod test {
+    use super::unit_gap;
+
+    #[test]
+    fn gap() {
+        // Identical stacks, no degradation
+        assert_eq!(
+            unit_gap(vec![1,2,3,4], vec![1,2,3,4], 0), 
+            0
+        );
+
+        // Identical stacks, some degradation
+        assert_eq!(
+            unit_gap(vec![1,2,3,4], vec![1,2,3,4], 2), 
+            0
+        );
+
+        // Top pancakes flipped, no degradation
+        assert_eq!(
+            unit_gap(vec![2,1,3,4], vec![1,2,3,4], 0), 
+            1
+        );
+
+         // Top pancakes flipped, some degradation
+         assert_eq!(
+            unit_gap(vec![2,1,3,4], vec![1,2,3,4], 1), 
+            0
+        );
+    }
+}

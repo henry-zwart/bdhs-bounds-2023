@@ -149,14 +149,16 @@ def gap_arbitrary_cost_helper(state_1, state_2):
     return heuristic_value
 
 
-def gap_unit(node, state_2):
+def gap_unit(node, state_2, degradation=0):
     if type(state_2) is not tuple:
         state_2 = state_2.state
     try:
         state_1 = node.state
     except AttributeError:
         state_1 = node
-    return max(unit_gap(state_1, state_2), unit_gap(state_2, state_1))
+    return max(
+        unit_gap(state_1, state_2, degradation), unit_gap(state_2, state_1, degradation)
+    )
     # return max(
     #     gap_unit_cost_helper(state_1, state_2),
     #     gap_unit_cost_helper(state_2, state_1),

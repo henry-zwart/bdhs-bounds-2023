@@ -39,6 +39,15 @@ domain_mode_option: TypeAlias = Annotated[
         rich_help_panel=DOMAIN_OPTIONS,
     ),
 ]
+degradation_option: TypeAlias = Annotated[
+    int,
+    Option(
+        "--degradation",
+        "-d",
+        help="Degradation level (only applicable for pancake).",
+        rich_help_panel=DOMAIN_OPTIONS,
+    ),
+]
 problem_size_option: TypeAlias = Annotated[
     int,
     Option(
@@ -153,6 +162,7 @@ def search(
 def search_results(
     domain_type: domain_arg = DomainType.PANCAKE,
     mode: domain_mode_option = DomainMode.UNIT,
+    degradation: degradation_option = 0,
     size: problem_size_option = 8,
     results_path: Path = None,
 ):
@@ -162,14 +172,14 @@ def search_results(
     # if domain_type == DomainType.SLIDING_TILE and size not in [8, 15]:
     #     cons.exit_with_error(f"Invalid problem size for sliding tile domain: {size}")
 
-    all_data = get_results(domain_type, mode, size)
+    all_data = get_results(domain_type, mode, size, degradation=degradation)
     with results_path.open("w") as f:
         json.dump(all_data.dict(), f)
 
 
-def get_results(domain_type: DomainType, mode, size, blind=False):
+def get_results(domain_type: DomainType, mode, size, blind=False, degradation: int = 0):
     domain = domain_type.get_domain(mode=mode)
-    heuristic = domain_type.get_heuristic(mode=mode)
+    heuristic = domain_type.get_heuristic(mode=mode, degradation=degradation)
     heuristic_name = "blind" if blind else domain_type.get_heuristic_name()
 
     problems = domain.enumerate(size=size)

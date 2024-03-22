@@ -71,9 +71,8 @@ FROM python-base as final
 
 WORKDIR /code
 
-COPY --from=swipl:9.2.2 /usr/lib/swipl/ /usr/lib/swipl/
 # COPY --from=scryer_builder /scryer-prolog/target/release/scryer-prolog /usr/bin
-COPY --from=python-builder $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=swipl:9.2.2 /usr/lib/swipl/ /usr/lib/swipl/
 
 RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
     DEBIAN_FRONTEND=noninteractive && \
@@ -101,3 +100,6 @@ RUN ln -s "/usr/lib/swipl/bin/$(uname -m)-linux/swipl" /usr/bin/swipl && \
     libraptor2-0 && \
     dpkgArch="$(dpkg --print-architecture)" && \
     rm -rf /var/lib/apt/lists/*
+
+
+COPY --from=python-builder $PYSETUP_PATH $PYSETUP_PATH

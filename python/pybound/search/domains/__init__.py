@@ -1,4 +1,5 @@
 from enum import StrEnum
+from functools import partial
 
 from .cyclictile import (
     CyclicTileDomainArbitrary,
@@ -41,12 +42,12 @@ class DomainType(StrEnum):
             case self.CYCLICTILE, DomainMode.ARBITRARY:
                 return CyclicTileDomainArbitrary
 
-    def get_heuristic(self, mode: DomainMode = DomainMode.UNIT):
+    def get_heuristic(self, mode: DomainMode = DomainMode.UNIT, degradation=0):
         match (self, mode):
             case self.PANCAKE, DomainMode.UNIT:
-                return gap_unit
+                return partial(gap_unit, degradation=degradation)
             case self.PANCAKE, DomainMode.ARBITRARY:
-                return gap_arbitrary
+                return partial(gap_arbitrary, degradation=degradation)
             case self.SLIDINGTILE, DomainMode.UNIT:
                 return manhattan_unit
             case self.SLIDINGTILE, DomainMode.ARBITRARY:
