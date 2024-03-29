@@ -83,7 +83,7 @@ def regular_lb(state, other, *_args):
     return max(
         state.values.g + state.values.h,
         other.values.g + other.values.h,
-        state.values.g + other.values.g + EPSILON,
+        state.values.g + other.values.g + (0 if state.adid == other.adid else EPSILON),
     )
 
 
