@@ -100,7 +100,7 @@ def count_inversions(state):
 
 
 def load_tile_puzzles(cstar: int) -> list[tuple[str, str]]:
-    if cstar not in {3, 4, 5}:
+    if cstar not in {3, 4, 5, 15}:
         raise ValueError(
             "Error while loading tile puzzles, only support fixed cstar in {3,4,5}"
         )
@@ -111,8 +111,13 @@ def load_tile_puzzles(cstar: int) -> list[tuple[str, str]]:
 
     with (puzzles_path / f"EightPuzzle_{cstar}.txt").open("r") as f:
         initials = [parse_prolog_tile_puzzle(desc) for desc in f]
+        # Remove incorrectly parsed problems
+        initials = [i for i in initials if i is not None]
+        # Limit number of problems
+        if cstar > 8:
+            initials = initials[:16]
 
-    return [(initial, goal) for initial in initials if initial is not None]
+    return [(initial, goal) for initial in initials]
 
 
 def parse_prolog_tile_puzzle(puzzle_description: str) -> str | None:

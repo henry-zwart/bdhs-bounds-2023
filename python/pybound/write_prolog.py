@@ -31,6 +31,7 @@ def get_problem_level_axioms(problem_data: SearchProblemData):
         f"domain({problem_data.domain}).",
         f"mode({problem_data.mode}).",
         f"heuristic({problem_data.heuristic}).",
+        f"degradation({problem_data.degradation}).",
         f"size({problem_data.size}).",
         f"c_star({problem_data.solution_cost}).",
         f"special_nodes([{initial_state_name},{goal_state_name}]).",

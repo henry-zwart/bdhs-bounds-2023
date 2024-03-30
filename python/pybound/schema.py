@@ -35,6 +35,7 @@ class SearchProblemData(BaseModel):
     mode: str
     size: int
     heuristic: str
+    degradation: int
 
     initial_state_idx: int
     goal_state_idx: int

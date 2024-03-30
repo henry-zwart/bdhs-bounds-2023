@@ -186,7 +186,7 @@ def get_results(
     if domain_type in ("slidingtile", "cyclictile"):
         # problems = random.sample(problems, k=min(len(problems), 100))
         problems = [
-            problem for cstar in (3, 4, 5) for problem in load_tile_puzzles(cstar)
+            problem for cstar in (3, 4, 5, 15) for problem in load_tile_puzzles(cstar)
         ]
         # problems = load_tile_puzzles(cstar)
 
@@ -222,6 +222,7 @@ def get_results(
                     mode=mode,
                     size=size,
                     heuristic=heuristic_name,
+                    degradation=degradation,
                     initial_state_idx=initial_index,
                     goal_state_idx=goal_index,
                     solution_cost=solution_cost,
