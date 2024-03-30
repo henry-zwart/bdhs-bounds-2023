@@ -1,6 +1,8 @@
 import itertools
 import math
+import re
 from abc import abstractmethod
+from pathlib import Path
 
 from pybound.exceptions import ProblemFormatError
 from rust_bindings import unit_manhattan
@@ -97,6 +99,44 @@ def count_inversions(state):
     return inversions
 
 
+def load_tile_puzzles(cstar: int) -> list[tuple[str, str]]:
+    if cstar not in {3, 4, 5}:
+        raise ValueError(
+            "Error while loading tile puzzles, only support fixed cstar in {3,4,5}"
+        )
+
+    puzzles_path = Path("tile_puzzles")
+    with (puzzles_path / "EightPuzzle_0.txt").open("r") as f:
+        goal = parse_prolog_tile_puzzle(f.read())
+
+    with (puzzles_path / f"EightPuzzle_{cstar}.txt").open("r") as f:
+        initials = [parse_prolog_tile_puzzle(desc) for desc in f]
+
+    return [(initial, goal) for initial in initials if initial is not None]
+
+
+def parse_prolog_tile_puzzle(puzzle_description: str) -> str | None:
+    tile_positions = {
+        "a": 0,
+        "b": 1,
+        "c": 2,
+        "d": 3,
+        "e": 4,
+        "f": 5,
+        "g": 6,
+        "h": 7,
+        "i": 8,
+    }
+    try:
+        tiles = re.findall("at\((\d+),(.)\)", puzzle_description)
+        blank = re.search("blank\((.)\)", puzzle_description).group(1)
+        tile_map = {int(tile): tile_positions[pos] for (tile, pos) in tiles}
+        tile_map[0] = tile_positions[blank]
+        return "".join([str(v) for (_, v) in sorted(tile_map.items())])
+    except:
+        ...
+
+
 # def count_inversions(state):
 #     inversions = 0
 #     gameSize = len(state)
@@ -125,7 +165,7 @@ def manhattan_distance(currentLocation, goalLocation):
     )
 
 
-def manhattan_unit(node, state_2):
+def manhattan_unit(node, state_2, degradation=0):
     if type(state_2) is not tuple:
         state_2 = state_2.state
     try:
@@ -139,7 +179,7 @@ def manhattan_unit(node, state_2):
     #     h2 += manhattan_distance(state_1[i], state_2[i])
 
     # assert h1 == h2
-    return unit_manhattan(state_1, state_2)
+    return unit_manhattan(state_1, state_2, degradation)
 
 
 def manhattan_arbitrary(node, goal_state):

@@ -49,11 +49,11 @@ class DomainType(StrEnum):
             case self.PANCAKE, DomainMode.ARBITRARY:
                 return partial(gap_arbitrary, degradation=degradation)
             case self.SLIDINGTILE, DomainMode.UNIT:
-                return manhattan_unit
+                return partial(manhattan_unit, degradation=degradation)
             case self.SLIDINGTILE, DomainMode.ARBITRARY:
                 return manhattan_arbitrary
             case self.CYCLICTILE, DomainMode.UNIT:
-                return cyclic_manhattan_unit
+                return partial(cyclic_manhattan_unit, degradation=degradation)
             case self.CYCLICTILE, DomainMode.ARBITRARY:
                 return cyclic_manhattan_arbitrary
 

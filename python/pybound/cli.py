@@ -1,9 +1,5 @@
-import hashlib
 import itertools
 import json
-import math
-import random
-import time
 from pathlib import Path
 from typing import Annotated, TypeAlias
 
@@ -12,10 +8,8 @@ import typer
 from alive_progress import alive_bar
 from pybound.search.a_star_search import a_star_search
 from pybound.search.domains import DomainMode, DomainType
-from pybound.search.memoize import memoize
-from pybound.search.node import Node
+from pybound.search.domains.tile import load_tile_puzzles
 from pybound.search.post_process_b_and_d_values import post_process
-from pybound.utils import serialize
 from pybound.write_prolog import pydantic_to_prolog
 from typer import Argument, Option
 
@@ -177,14 +171,24 @@ def search_results(
         json.dump(all_data.dict(), f)
 
 
-def get_results(domain_type: DomainType, mode, size, blind=False, degradation: int = 0):
+def get_results(
+    domain_type: DomainType,
+    mode,
+    size,
+    blind=False,
+    degradation: int = 0,
+):
     domain = domain_type.get_domain(mode=mode)
     heuristic = domain_type.get_heuristic(mode=mode, degradation=degradation)
     heuristic_name = "blind" if blind else domain_type.get_heuristic_name()
 
     problems = domain.enumerate(size=size)
     if domain_type in ("slidingtile", "cyclictile"):
-        problems = random.sample(problems, k=min(len(problems), 100))
+        # problems = random.sample(problems, k=min(len(problems), 100))
+        problems = [
+            problem for cstar in (3, 4, 5) for problem in load_tile_puzzles(cstar)
+        ]
+        # problems = load_tile_puzzles(cstar)
 
     problems_data = []
     with alive_bar(len(problems)) as bar:

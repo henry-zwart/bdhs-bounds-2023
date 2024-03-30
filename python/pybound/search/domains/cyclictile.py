@@ -88,7 +88,7 @@ def cyclic_manhattan_distance(currentLocation, goalLocation):
     ) % 3
 
 
-def cyclic_manhattan_unit(node, state_2):
+def cyclic_manhattan_unit(node, state_2, degradation=0):
     if type(state_2) is not tuple:
         state_2 = state_2.state
     try:
@@ -96,7 +96,7 @@ def cyclic_manhattan_unit(node, state_2):
     except AttributeError:
         state_1 = node
 
-    return unit_cyclic_manhattan(state_1, state_2)
+    return unit_cyclic_manhattan(state_1, state_2, degradation)
 
 
 def cyclic_manhattan_arbitrary(node, goal_state):

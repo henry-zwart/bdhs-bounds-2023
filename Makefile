@@ -13,11 +13,12 @@ SLIDING_TILE_SIZES := 8
 CYCLIC_TILE_SIZES := 8
 
 PANCAKE_DEGRADATIONS := 0 1 2
+TILE_DEGRADATIONS := 0 1 2 3 4 5 6 7 8
 
 
 PANCAKE_DATA_FILES := $(foreach ps,$(PANCAKE_SIZES),$(foreach d,$(PANCAKE_DEGRADATIONS),.$(ps)_d$(d)_pancake_pl))
-SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),.$(ss)_d0_slidingtile_pl)
-CYCLIC_TILE_DATA_FILES := $(foreach cs,$(CYCLIC_TILE_SIZES),.$(cs)_d0_cyclictile_pl)
+SLIDING_TILE_DATA_FILES := $(foreach ss,$(SLIDING_TILE_SIZES),$(foreach d,$(TILE_DEGRADATIONS),.$(ss)_d$(d)_slidingtile_pl))
+CYCLIC_TILE_DATA_FILES := $(foreach cs,$(CYCLIC_TILE_SIZES),$(foreach d,$(TILE_DEGRADATIONS),.$(cs)_d$(d)_cyclictile_pl))
 SEARCH_DATA_FILES := $(foreach f,$(PANCAKE_DATA_FILES) $(SLIDING_TILE_DATA_FILES) $(CYCLIC_TILE_DATA_FILES),assets/$(f))
 
 

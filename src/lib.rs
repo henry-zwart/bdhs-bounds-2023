@@ -41,10 +41,14 @@ fn unit_gap(state_1: Vec<i32>, state_2: Vec<i32>, degradation: i32) -> i32 {
 }
 
 #[pyfunction]
-fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
+fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>, degradation: i32) -> i32 {
     let mut h = 0;
+    let ignored_tiles: HashSet<i32> = (0..=degradation).collect();
 
-    for i in 1..state_1.len() {
+    for i in 0..state_1.len() {
+        if ignored_tiles.contains(&(i as i32)) {
+            continue;
+        }
         h += (state_1[i].0 - state_2[i].0).abs() + (state_1[i].1 - state_2[i].1).abs()
     }
     
@@ -53,10 +57,14 @@ fn unit_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
 
 
 #[pyfunction]
-fn unit_cyclic_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>) -> i32 {
+fn unit_cyclic_manhattan(state_1: Vec<(i32, i32)>, state_2: Vec<(i32, i32)>, degradation: i32) -> i32 {
     let mut h = 0;
+    let ignored_tiles: HashSet<i32> = (0..=degradation).collect();
 
-    for i in 1..state_1.len() {
+    for i in 0..state_1.len() {
+        if ignored_tiles.contains(&(i as i32)) {
+            continue;
+        }
         h +=
             min(
                 (state_1[i].0 - state_2[i].0).rem_euclid(3),
@@ -88,6 +96,8 @@ pub mod tile;
 
 #[cfg(test)]
 mod test {
+    use crate::unit_manhattan;
+
     use super::unit_gap;
 
     #[test]
@@ -113,6 +123,90 @@ mod test {
          // Top pancakes flipped, some degradation
          assert_eq!(
             unit_gap(vec![2,1,3,4], vec![1,2,3,4], 1), 
+            0
+        );
+    }
+
+    #[test]
+    fn manhattan() {
+        // Identical states, no degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                0
+            ),
+            0
+        );
+
+        // Identical states, some degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                4
+            ),
+            0
+        );
+
+        
+        // "8" tile moved, no degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                0
+            ),
+            1
+        );
+        
+        // "8" tile moved, 7 degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)],  
+                7
+            ),
+            1
+        );
+        
+        // "8" tile moved, 8 degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)],  
+                8
+            ),
+            0
+        );
+
+        // "8" tile moved, then "5", no degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,1),(0,0),(1,0),(2,0),(0,1),(1,2),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)],  
+                0
+            ),
+            2
+        );
+
+        // "8" tile moved, then "5", 5 degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,1),(0,0),(1,0),(2,0),(0,1),(1,2),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)],  
+                5
+            ),
+            1
+        );
+
+        // "8" tile moved, then "5", 8 degradation
+        assert_eq!(
+            unit_manhattan(
+                vec![(1,1),(0,0),(1,0),(2,0),(0,1),(1,2),(2,1),(0,2),(2,2)], 
+                vec![(2,2),(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2)], 
+                8
+            ),
             0
         );
     }
